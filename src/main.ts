@@ -41,7 +41,7 @@ const randerTodos = (todos: Todo[]) => {
     myDiv += `<div> 
         <div class="card my-2">
         <div class="card-header">
-        ${element.id}
+      #${element.id}
         </div>
         <div class="card-body">
           <h5 class="card-title">${element.title}</h5>
