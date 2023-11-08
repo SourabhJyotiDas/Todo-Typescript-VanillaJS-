@@ -1,14 +1,13 @@
-import "./style.css";
-console.log("hello World");
-
 interface Todo {
+  readonly id: string;
   title: string;
   description: string;
-  readonly id: string;
   isCompleted: boolean;
 }
 
-const todos: Todo[] = [];
+const todos: Todo[] = localStorage.getItem("Todos")
+  ? JSON.parse(String(localStorage.getItem("Todos")))
+  : [];
 
 const myForm = document.getElementById("myForm") as HTMLFormElement;
 const titleInput = document.getElementById("titleInput") as HTMLInputElement;
@@ -24,10 +23,10 @@ myForm.onsubmit = (e) => {
     id: String(Math.random() * 1000),
     isCompleted: false,
   };
-  todos.push(todo);
 
+  todos.unshift(todo);
   randerTodos(todos);
-
+  localStorage.setItem("Todos", JSON.stringify(todos));
   titleInput.value = "";
   descriptionInput.value = "";
 };
@@ -35,6 +34,7 @@ myForm.onsubmit = (e) => {
 const todosContainer = document.getElementById(
   "todosContainer"
 ) as HTMLDivElement;
+
 // ------------------------------------------------------------------
 const randerTodos = (todos: Todo[]) => {
   let myDiv = "";
@@ -60,6 +60,38 @@ const randerTodos = (todos: Todo[]) => {
   });
   todosContainer.innerHTML = myDiv;
   // ------------------------------------------------------------------
+  let completeBtn = document.getElementsByClassName(
+    "completeBtn"
+  ) as HTMLCollectionOf<HTMLButtonElement>;
+
+  for (const button of completeBtn) {
+    button.onclick = (e) => {
+      console.log("Click");
+
+      let id = (e.target as HTMLInputElement).id;
+      console.log(id);
+
+      let newTodos = todos.map((element) => {
+        if (element.id === id) {
+          let todo: Todo = {
+            id: element.id,
+            title: element.title,
+            description: element.description,
+            isCompleted: element.isCompleted ? false : true,
+          };
+          return todo;
+        } else {
+          return element;
+        }
+      });
+      console.log(newTodos);
+
+      localStorage.setItem("Todos", JSON.stringify(newTodos));
+      randerTodos(newTodos);
+      location.reload();
+    };
+  }
+  // ------------------------------------------------------------------
   let deleteBtn = document.getElementsByClassName(
     "deleteBtn"
   ) as HTMLCollectionOf<HTMLButtonElement>;
@@ -70,33 +102,12 @@ const randerTodos = (todos: Todo[]) => {
       let newTodos = todos.filter((element) => {
         return element.id !== id;
       });
+      localStorage.setItem("Todos", JSON.stringify(newTodos));
       randerTodos(newTodos);
+      location.reload();
     };
   }
-  // ------------------------------------------------------------------
-  let completeBtn = document.getElementsByClassName(
-    "completeBtn"
-  ) as HTMLCollectionOf<HTMLButtonElement>;
-
-  for (const button of completeBtn) {
-    button.onclick = (e) => {
-      let id = (e.target as HTMLInputElement).id;
-      let newTodos = todos.map((element) => {
-        if (element.id === id) {
-          let todo: Todo = {
-            id: element.id,
-            title: element.title,
-            description: element.description,
-            isCompleted: !element.isCompleted,
-          };
-          return todo;
-        } else {
-          return element;
-        }
-      });
-      randerTodos(newTodos);
-    };
-  }
-
   // ------------------------------------------------------------------
 };
+
+randerTodos(todos);
